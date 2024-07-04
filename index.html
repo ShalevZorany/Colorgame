@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Game</title>
+    <title>Image Game</title>
     <style>
         body {
             display: flex;
@@ -18,34 +18,42 @@
             text-align: center;
         }
 
-        .color-buttons {
+        .image-buttons {
             margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .color-btn {
+        .image-btn {
             width: 100px;
             height: 100px;
             margin: 10px;
             border: none;
             cursor: pointer;
             opacity: 0.7;
-            transition: opacity 0.3s, background-color 0.3s;
+            transition: opacity 0.3s, transform 0.3s, filter 0.3s;
+            background-size: cover;
+            background-position: center;
         }
 
-        .color-btn:hover {
+        .image-btn:hover {
             opacity: 1;
         }
 
-        .color-btn.active {
-            background-color: white !important;
+        .image-btn.active {
             opacity: 1 !important;
+            filter: brightness(150%) !important;
+            transform: scale(1.1);
             box-shadow: 0 0 20px white;
         }
 
-        .red { background-color: red; }
-        .green { background-color: green; }
-        .blue { background-color: blue; }
-        .yellow { background-color: yellow; }
+        .image1 { background-image: url('images/image1.jpg'); }
+        .image2 { background-image: url('images/image2.jpg'); }
+        .image3 { background-image: url('images/image3.jpg'); }
+        .image4 { background-image: url('images/image4.jpg'); }
+        .image5 { background-image: url('images/image5.jpg'); }
+        .image6 { background-image: url('images/image6.jpg'); }
 
         #message {
             margin-top: 20px;
@@ -60,33 +68,36 @@
 </head>
 <body>
     <div class="container">
-        <h1>Color Game</h1>
-        <p id="instructions">Follow the sequence of colors. Click "Start Game" to begin!</p>
-        <div class="color-buttons">
-            <button class="color-btn red" data-color="red"></button>
-            <button class="color-btn green" data-color="green"></button>
-            <button class="color-btn blue" data-color="blue"></button>
-            <button class="color-btn yellow" data-color="yellow"></button>
+        <h1>Image Game</h1>
+        <p id="instructions">Follow the sequence of images. Click "Start Game" to begin!</p>
+        <div class="image-buttons">
+            <button class="image-btn image1" data-image="image1"></button>
+            <button class="image-btn image2" data-image="image2"></button>
+            <button class="image-btn image3" data-image="image3"></button>
+            <button class="image-btn image4" data-image="image4"></button>
+            <button class="image-btn image5" data-image="image5"></button>
+            <button class="image-btn image6" data-image="image6"></button>
         </div>
         <button id="startBtn">Start Game</button>
         <div id="message"></div>
     </div>
     <script>
         const startBtn = document.getElementById('startBtn');
-        const colorButtons = document.querySelectorAll('.color-btn');
+        const imageButtons = document.querySelectorAll('.image-btn');
         const messageDiv = document.getElementById('message');
         const instructions = document.getElementById('instructions');
 
         let gameSequence = [];
         let playerSequence = [];
         let level = 0;
+        let score = 0;
 
         startBtn.addEventListener('click', startGame);
 
-        colorButtons.forEach(button => {
+        imageButtons.forEach(button => {
             button.addEventListener('click', (e) => {
-                const color = e.target.getAttribute('data-color');
-                playerSequence.push(color);
+                const image = e.target.closest('.image-btn').getAttribute('data-image');
+                playerSequence.push(image);
                 checkSequence();
             });
         });
@@ -95,32 +106,33 @@
             gameSequence = [];
             playerSequence = [];
             level = 0;
+            score = 0;
             messageDiv.textContent = '';
-            instructions.textContent = 'Watch the sequence and then repeat it by clicking the buttons.';
+            instructions.textContent = 'Watch the sequence and then repeat it by clicking the images.';
             nextLevel();
         }
 
         function nextLevel() {
             level++;
             playerSequence = [];
-            const randomColor = getRandomColor();
-            gameSequence.push(randomColor);
+            const randomImage = getRandomImage();
+            gameSequence.push(randomImage);
             flashSequence();
         }
 
-        function getRandomColor() {
-            const colors = ['red', 'green', 'blue', 'yellow'];
-            return colors[Math.floor(Math.random() * colors.length)];
+        function getRandomImage() {
+            const images = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
+            return images[Math.floor(Math.random() * images.length)];
         }
 
         function flashSequence() {
             let delay = 0;
-            gameSequence.forEach((color, index) => {
+            gameSequence.forEach((image, index) => {
                 setTimeout(() => {
-                    flashButton(color);
+                    flashButton(image);
                     if (index === gameSequence.length - 1) {
                         setTimeout(() => {
-                            instructions.textContent = 'Now it\'s your turn! Repeat the sequence by clicking the buttons.';
+                            instructions.textContent = 'Now it\'s your turn! Repeat the sequence by clicking the images.';
                         }, 500);
                     }
                 }, delay);
@@ -128,8 +140,8 @@
             });
         }
 
-        function flashButton(color) {
-            const button = document.querySelector(`.color-btn[data-color="${color}"]`);
+        function flashButton(image) {
+            const button = document.querySelector(`.image-btn[data-image="${image}"]`);
             button.classList.add('active');
             setTimeout(() => {
                 button.classList.remove('active');
@@ -139,11 +151,12 @@
         function checkSequence() {
             const currentIndex = playerSequence.length - 1;
             if (playerSequence[currentIndex] !== gameSequence[currentIndex]) {
-                messageDiv.textContent = 'Game Over! You reached level ' + level;
+                messageDiv.textContent = 'Game Over! You reached level ' + level + ' with a score of ' + score;
                 instructions.textContent = 'Click "Start Game" to try again.';
                 return;
             }
             if (playerSequence.length === gameSequence.length) {
+                score++;
                 instructions.textContent = 'Great job! Get ready for the next level.';
                 setTimeout(nextLevel, 1000);
             }
